@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>ClipCSharp</RootNamespace>
+    <AssemblyName>ClipCSharp</AssemblyName>
+    <!-- Required so the RID-specific native libtorch dylibs are copied to output -->
+    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- TorchSharp: C# bindings for LibTorch (CPU build) -->
+    <!-- 0.102.x is the last TorchSharp generation with Intel Mac (osx-x64) support -->
+    <PackageReference Include="TorchSharp"      Version="0.102.6" />
+    <PackageReference Include="TorchSharp-cpu"  Version="0.102.6" />
+
+    <!-- SkiaSharp: image decoding for ImagePreprocessor.LoadFromFile().
+         Already pulled in transitively by TorchSharp; pinned explicitly so
+         this direct dependency is visible and stable. -->
+    <PackageReference Include="SkiaSharp"       Version="2.88.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="input.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
