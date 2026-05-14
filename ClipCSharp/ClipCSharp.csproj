@@ -8,25 +8,50 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>ClipCSharp</RootNamespace>
     <AssemblyName>ClipCSharp</AssemblyName>
-    <!-- Required so the RID-specific native libtorch dylibs are copied to output -->
-    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
+
+    <!--
+      Runtime identifiers for which native libtorch binaries are restored.
+      Listed in plural form so the project builds on any host without an
+      explicit `-r <rid>`. For self-contained publishing, pass the target
+      on the command line, e.g.:
+
+          dotnet publish -c Release -r osx-arm64
+          dotnet publish -c Release -r linux-x64
+    -->
+    <RuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- TorchSharp: C# bindings for LibTorch (CPU build) -->
-    <!-- 0.102.x is the last TorchSharp generation with Intel Mac (osx-x64) support -->
-    <PackageReference Include="TorchSharp"      Version="0.102.6" />
-    <PackageReference Include="TorchSharp-cpu"  Version="0.102.6" />
+    <!-- TorchSharp: managed C# bindings for LibTorch.
+         0.102.x is the last TorchSharp generation with Intel Mac (osx-x64) support. -->
+    <PackageReference Include="TorchSharp" Version="0.102.6" />
+
+    <!--
+      Native LibTorch backend.
+
+      Default: CPU on every platform. The device (CPU vs GPU) is chosen
+      *at runtime* in Program.cs via the -device flag; see SelectDevice().
+
+      To enable GPU acceleration you must swap the native package because
+      CUDA support is baked into LibTorch's native libraries — it cannot
+      be toggled from C#. Comment out the CPU line below and uncomment the
+      matching CUDA line for your host (Windows or Linux only; macOS has
+      no CUDA build of LibTorch). The runtime -device flag continues
+      to work either way: the CUDA packages can still run on CPU.
+    -->
+    <PackageReference Include="TorchSharp-cpu"          Version="0.102.6" />
+<!--    <PackageReference Include="TorchSharp-cuda-windows" Version="0.102.6" />-->
+<!--    <PackageReference Include="TorchSharp-cuda-linux"   Version="0.102.6" />-->
 
     <!-- SkiaSharp: image decoding for ImagePreprocessor.LoadFromFile().
          Already pulled in transitively by TorchSharp; pinned explicitly so
          this direct dependency is visible and stable. -->
-    <PackageReference Include="SkiaSharp"       Version="2.88.6" />
+    <PackageReference Include="SkiaSharp" Version="2.88.6" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="input.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

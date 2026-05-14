@@ -190,17 +190,28 @@ public sealed class BpeTokenizer
     /// vocabulary (every printable ASCII byte maps to itself).  Suitable for
     /// unit-tests and demos; replace with the real CLIP vocab for production.
     /// </summary>
+    /// <remarks>
+    /// Vocab id ordering follows OpenAI's CLIP convention:
+    ///   ids 0..N-1   →   one per byte (regular tokens)
+    ///   id  N        →   SOT (start of text)
+    ///   id  N+1      →   EOT (end of text)
+    /// Putting the special tokens at the TOP of the id range is what makes
+    /// the `tokens.argmax(dim:-1)` trick in <see cref="ClipCSharp.Models.TextEncoder"/>
+    /// recover the EOT position. If EOT had a low id (e.g. 1) argmax would
+    /// instead point at the highest-id *regular* character — typically the
+    /// space byte, since it remaps to a high Unicode codepoint — and every
+    /// short prompt that shares the same first few characters would produce
+    /// an identical text embedding.
+    /// </remarks>
     public static BpeTokenizer CreateMinimal()
     {
-        var encoder = new Dictionary<string, int>
-        {
-            [SotToken] = 0,
-            [EotToken] = 1,
-        };
+        var encoder = new Dictionary<string, int>();
 
-        // One token per printable byte, then merges for common digrams
+        // One token per byte. Ids start at 0; the BpeTokenizer constructor
+        // appends SOT and EOT at the end of the vocab so EOT has the highest
+        // id (required by TextEncoder's argmax-based EOT location).
         var byteMap = BuildByteToUnicode();
-        int idx = 2;
+        int idx = 0;
         foreach (var ch in byteMap.Values)
             encoder[ch.ToString()] = idx++;
 

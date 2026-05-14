@@ -11,16 +11,9 @@ using static TorchSharp.torch;
 // ============================================================
 
 Console.WriteLine("=== CLIP C# Demo ===\n");
-
-// ------------------------------------------------------------------
-// 1. Choose device (GPU if available, else CPU)
-// ------------------------------------------------------------------
 var device = cuda.is_available() ? CUDA : CPU;
 Console.WriteLine($"Device: {device.type}");
 
-// ------------------------------------------------------------------
-// 2. Build model (ViT-B/32 default)
-// ------------------------------------------------------------------
 var cfg   = ClipConfig.ViTB32();
 var model = new ClipModel(cfg);
 model.to(device);
@@ -55,7 +48,7 @@ Console.WriteLine("\n--- Embedding Similarity Demo ---");
 
 string[] descriptions =
 [
-    "a photo of a car",
+    "a photo of a bench",
     "a photo of a red car",
     "a photo of a blue car",
     "a cat",
